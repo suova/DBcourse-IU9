@@ -1,8 +1,8 @@
 USE master;
 GO
 
- 
- 
+
+
 IF DB_ID('lab5') IS NOT NULL
 DROP DATABASE lab5;
 
@@ -10,7 +10,7 @@ CREATE DATABASE lab5
 ON ( NAME =data5,
     FILENAME = '/DB/lab5/data5.mdf',
     SIZE = 10,
-    MAXSIZE = 50,
+    MAXSIZE = UNLIMITED,
     FILEGROWTH = 5 )
 LOG ON
 ( NAME = log5,
@@ -24,6 +24,9 @@ GO
 
 USE lab5;
 GO
+
+IF OBJECT_ID(N'USERS') is NOT NULL
+ DROP TABLE USERS
 
 CREATE TABLE USERS (
     id INT IDENTITY (1, 1),
@@ -44,8 +47,8 @@ ADD FILE
     NAME = FGdata5,
     FILENAME = '/DB/lab5/FGdata5.ndf',
     SIZE = 5MB,
-    MAXSIZE = 100MB,
-    FILEGROWTH = 5MB
+    MAXSIZE = UNLIMITED,
+    FILEGROWTH = 5%
 )
 TO FILEGROUP Filegroup5;
 GO
@@ -60,7 +63,7 @@ GO
 
 CREATE TABLE BOOKS (
     id INT IDENTITY (1, 1),
-	title VARCHAR(50) ,
+	title VARCHAR(100) NOT NULL,
 	author VARCHAR(100) NOT NULL
 ) ;
 GO
