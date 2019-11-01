@@ -1,89 +1,76 @@
 USE master;
 GO
 
---1. Создать базу данных (CREATE DATABASE…,определение настроек размеров файлов).
-IF DB_ID(N'lab5') IS NOT NULL
+ 
+ 
+IF DB_ID('lab5') IS NOT NULL
 DROP DATABASE lab5;
-GO
 
 CREATE DATABASE lab5
-ON (
-NAME =data5,
-filename = '/DB/lab5/data5.mdf',
-size = 10 MB,
-MAXSIZE = UNLIMITED,
-FILEGROWTH = 5%)
-log on (
-NAME = log5,
-FILENAME = '/DB/lab5/log5.ldf',
-SIZE = 5 MB,
-MAXSIZE = 25 MB,
-FILEGROWTH = 5 MB );
-GO
-
---2. Создать произвольную таблицу (CREATE TABLE…).
-USE lab5
-GO
-
-IF OBJECT_ID(N'users') is NOT NULL
-DROP TABLE users
-GO
-
-CREATE TABLE users
-(
-id INT IDENTITY (1, 1),
-name VARCHAR(128),
-email VARCHAR(128) NOT NULL,
-phone VARCHAR(12)
-) ON [PRIMARY];
+ON ( NAME =data5,
+    FILENAME = '/DB/lab5/data5.mdf',
+    SIZE = 10,
+    MAXSIZE = 50,
+    FILEGROWTH = 5 )
+LOG ON
+( NAME = log5,
+    FILENAME = '/DB/lab5/log5.ldf',
+    SIZE = 5MB,
+    MAXSIZE = 25MB,
+    FILEGROWTH = 5MB );
 GO
 
 
---3. Добавить файловую группу и файл данных (ALTER DATABASE…).
+
 USE lab5;
 GO
 
-ALTER DATABASE lab5
-ADD FILEGROUP Filegrouplab5
-GO
-
-ALTER DATABASE lab5
-ADD FILE (
-NAME = FGdata5,
-FILENAME = '/DB/lab5/FGdata5.mdf',
-SIZE = 10 MB,
-MAXSIZE = UNLIMITED,
-FILEGROWTH = 5%
-)
-TO FILEGROUP Filegrouplab5
+CREATE TABLE USERS (
+    id INT IDENTITY (1, 1),
+	name VARCHAR(80) NOT NULL,
+	email VARCHAR(100) NOT NULL
+);
 GO
 
 
---4. Сделать созданную файловую группу файловой группой по умолчанию.
+
 ALTER DATABASE lab5
-MODIFY FILEGROUP Filegrouplab5 DEFAULT
+ADD FILEGROUP Filegroup5;
 GO
 
-
---5. (*) Создать еще одну произвольную таблицу.
-CREATE TABLE BOOKS
+ALTER DATABASE lab5
+ADD FILE
 (
-    id     INT NOT NULL IDENTITY (1, 1)
-        CONSTRAINT I_books PRIMARY KEY,
-    author VARCHAR(255),
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-)ON [PRIMARY]
+    NAME = FGdata5,
+    FILENAME = '/DB/lab5/FGdata5.ndf',
+    SIZE = 5MB,
+    MAXSIZE = 100MB,
+    FILEGROWTH = 5MB
+)
+TO FILEGROUP Filegroup5;
 GO
 
 
---6. (*) Удалить созданную вручную файловую группу.
---
--- CREATE UNIQUE CLUSTERED INDEX I_books
---     ON dbo.BOOKS (id)
---     WITH (DROP_EXISTING = ON)
---     ON [PRIMARY]
--- GO
+
+ALTER DATABASE lab5
+MODIFY FILEGROUP Filegroup5 DEFAULT;
+GO
+
+
+
+CREATE TABLE BOOKS (
+    id INT IDENTITY (1, 1),
+	title VARCHAR(50) ,
+	author VARCHAR(100) NOT NULL
+) ;
+GO
+
+
+
+CREATE CLUSTERED INDEX IX_BOOKS_id
+    ON BOOKS (id)
+	ON [PRIMARY];
+GO
 
 ALTER DATABASE lab5
 MODIFY FILEGROUP [PRIMARY] DEFAULT;
@@ -93,21 +80,20 @@ ALTER DATABASE lab5
 REMOVE FILE FGdata5;
 GO
 
-
 ALTER DATABASE lab5
-REMOVE FILEGROUP Filegrouplab5;
+REMOVE FILEGROUP Filegroup5;
 GO
 
 
--- 7. Создать схему, переместить в нее одну из таблиц,удалить схему.
-CREATE SCHEMA mySchema;
+
+CREATE SCHEMA lab5Schema;
 GO
 
-ALTER SCHEMA mySchema TRANSFER users;
+ALTER SCHEMA lab5Schema TRANSFER BOOKS;
 GO
 
-DROP TABLE mySchema.users;
-
-DROP SCHEMA mySchema;
+DROP TABLE lab5Schema.BOOKS;
 GO
 
+DROP SCHEMA lab5Schema;
+GO
