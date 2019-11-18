@@ -56,10 +56,10 @@ SELECT * FROM users
 
 
 IF OBJECT_ID(N'deleteUser') IS NOT NULL
-	DROP TRIGGER updateUser
+	DROP TRIGGER deleteUser
 go
 
-CREATE TRIGGER updateUser
+CREATE TRIGGER deleteUser
 	ON users
 	INSTEAD OF DELETE
 AS
